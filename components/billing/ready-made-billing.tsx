@@ -13,26 +13,20 @@ import { BillViewer } from "./bill-viewer";
 
 export function ReadyMadeBillingContent() {
   const [bills, setBills] = useState<any[]>([]);
-  const [customers, setCustomers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [selectedBill, setSelectedBill] = useState<any>(null);
 
   const loadData = async () => {
     try {
-      const [billsData, customersData] = await Promise.all([
-        getAllBills(),
-        getCustomers(),
-      ]);
+      const billsData = await getAllBills();
       setBills(billsData);
-      setCustomers(customersData);
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
       setIsLoading(false);
     }
   };
-
   useEffect(() => {
     loadData();
   }, []);
@@ -97,7 +91,6 @@ export function ReadyMadeBillingContent() {
           </CardHeader>
           <CardContent>
             <BillForm
-              customers={customers}
               onSuccess={() => {
                 setShowForm(false);
                 loadData();

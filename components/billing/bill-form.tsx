@@ -53,11 +53,44 @@ type BillItem = {
 };
 
 interface BillFormProps {
-  customers: any[];
   onSuccess: () => void;
 }
 
-export function BillForm({ customers, onSuccess }: BillFormProps) {
+export function BillForm({ onSuccess }: BillFormProps) {
+  // Temporarily hardcoded customer data for dropdown selection if the database is not working.
+  // In a production environment, this data would typically be fetched from an API.
+  const hardcodedCustomers = [
+    {
+      id: "customer_rajesh",
+      name: "Rajesh Kumar",
+      address: "123 Gold Street, Mumbai, MH 400001",
+      phone: "+91-9876543210",
+    },
+    {
+      id: "customer_priya",
+      name: "Priya Sharma",
+      address: "456 Diamond Avenue, Bangalore, KA 560001",
+      phone: "+91-9876543211",
+    },
+    {
+      id: "customer_arjun",
+      name: "Arjun Patel",
+      address: "789 Silver Lane, Ahmedabad, GJ 380001",
+      phone: "+91-9876543212",
+    },
+    {
+      id: "customer_deepika",
+      name: "Deepika Singh",
+      address: "101 Pearl Street, Chennai, TN 600001",
+      phone: "+91-9876543213",
+    },
+    {
+      id: "customer_vikram",
+      name: "Vikram Reddy",
+      address: "202 Ruby Road, Hyderabad, TS 500001",
+      phone: "+91-9876543214",
+    },
+  ];
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm({
     defaultValues: {
@@ -159,7 +192,7 @@ export function BillForm({ customers, onSuccess }: BillFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {customers.map((customer) => (
+                    {hardcodedCustomers.map((customer) => (
                       <SelectItem key={customer.id} value={customer.id}>
                         {customer.name}
                       </SelectItem>

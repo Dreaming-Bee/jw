@@ -35,6 +35,22 @@ async function main() {
     },
   });
 
+  const customer4 = await prisma.customer.create({
+    data: {
+      name: "Deepika Singh",
+      address: "101 Pearl Street, Chennai, TN 600001",
+      phone: "+91-9876543213",
+    },
+  });
+
+  const customer5 = await prisma.customer.create({
+    data: {
+      name: "Vikram Reddy",
+      address: "202 Ruby Road, Hyderabad, TS 500001",
+      phone: "+91-9876543214",
+    },
+  });
+
   // Create inventory items
   await prisma.inventoryItem.create({
     data: {
