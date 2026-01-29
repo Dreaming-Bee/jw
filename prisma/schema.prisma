@@ -1,0 +1,250 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  Admin
+  Sales
+  Workshop
+  Manager
+}
+
+enum MetalType {
+  Gold
+  WhiteGold
+  RoseGold
+  Silver
+}
+
+enum Karatage {
+  K22
+  K21
+  K18
+  K16
+  K14
+  K9
+  Silver925
+}
+
+enum PaymentType {
+  Cash
+  Card
+  Koko
+}
+
+enum JewelrySize {
+  Ring
+  Chain
+  Bracelet
+  BanglesWithScrews
+  BanglesWithoutScrews
+}
+
+enum BillType {
+  ReadyMade
+  CustomInitial
+  CustomFinal
+}
+
+enum WastageStatus {
+  Excess
+  Low
+  Ideal
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  role      Role     @default(Sales)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  address   String
+  phone     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  bills Bill[]
+}
+
+model Bill {
+  id              String   @id @default(cuid())
+  billNumber      String   @unique
+  billType        BillType @default(ReadyMade)
+  customerId      String
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  billDate        DateTime @default(now())
+  deliveryDate    DateTime?
+  
+  // Ready-made specific
+  oldGoldValue    Float    @default(0)
+  customerSignature String?
+  
+  // Custom order specific
+  designImage     String?
+  specialRemarks  String?
+  targetWeight    Float?
+  targetPrice     Float?
+  finalWeight     Float?
+  finalPrice      Float?
+  
+  items           BillItem[]
+  worksheetId     String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model BillItem {
+  id              String   @id @default(cuid())
+  billId          String
+  bill            Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+  
+  description     String
+  metalType       MetalType
+  karatage        Karatage
+  weight          Float
+  size            JewelrySize
+  sizeValue       String?
+  price           Float
+  totalValue      Float
+  
+  paymentType     PaymentType
+  
+  stones          Stone[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Stone {
+  id              String   @id @default(cuid())
+  billItemId      String
+  billItem        BillItem @relation(fields: [billItemId], references: [id], onDelete: Cascade)
+  
+  stoneType       String
+  treatment       String?
+  numberOfStones  Int
+  weightPerStone  Float
+  totalWeight     Float
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model InventoryItem {
+  id              String   @id @default(cuid())
+  itemName        String
+  description     String
+  metalType       MetalType
+  karatage        Karatage
+  weight          Float
+  size            JewelrySize
+  sizeValue       String?
+  price           Float
+  quantity        Int       @default(1)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model WorksheetItem {
+  id              String   @id @default(cuid())
+  billId          String?
+  
+  date            DateTime @default(now())
+  goldsmithName   String
+  
+  // Auto-filled from bill
+  jewelryDescription String
+  size            String
+  specialRemarks  String?
+  metalType       MetalType
+  metalKaratage   Karatage
+  targetMetalWeight Float
+  theoreticalWastage Float
+  
+  // Manual uploads
+  goldGivenPhoto  String?
+  goldPurityReport String?
+  goldGiven       Float
+  
+  // Stone details
+  stoneDetails    StoneWorksheetDetail[]
+  
+  // Wastage tracking
+  finalWeight     Float?
+  finalWeightPhoto String?
+  finalMetalWeight Float?
+  allowedWastage  Float?
+  goldBalance     Float?
+  goldBalancePhoto String?
+  goldBalancePurity String?
+  purityComment   String?
+  purityCorrectedGoldBalance Float?
+  actualWastage   Float?
+  differenceInWastage Float?
+  wastageStatus   WastageStatus?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model StoneWorksheetDetail {
+  id              String   @id @default(cuid())
+  worksheetId     String
+  worksheet       WorksheetItem @relation(fields: [worksheetId], references: [id], onDelete: Cascade)
+  
+  stoneType       String
+  size            String
+  weight          Float
+  weightPhoto     String?
+  smallStoneSize  String?
+  numberOfSmallStones Int?
+  smallStoneWeight Float?
+  totalStoneWeight Float?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model WastageRecord {
+  id              String   @id @default(cuid())
+  worksheetId     String?
+  
+  metalType       MetalType
+  karatage        Karatage
+  
+  targetWeight    Float
+  theoreticalWastage Float
+  finalMetalWeight Float
+  allowedWastage  Float
+  goldGiven       Float
+  actualWastage   Float
+  difference      Float
+  status          WastageStatus
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model UploadedFile {
+  id              String   @id @default(cuid())
+  fileName        String
+  fileUrl         String
+  fileType        String
+  createdAt       DateTime @default(now())
+}
